@@ -56,10 +56,17 @@ class JWTTokenParser implements TokenParserInterface
 
     public function getSession(string $token): AuthSession
     {
-        $tokenData = $this->decode($token);
-        return (new AuthSession())->setAccountTypeName($tokenData->iss)->setIdentity($tokenData->sub)
-                                  ->setCreateTime($tokenData->iat)->setExpirationTime($tokenData->exp)->setToken($token)
-                                  ->setExtendedData((array)$tokenData->data);
+        $arr = explode('.', $token);
+        $a = json_decode(base64_decode($arr[1]), true);
+    
+        if(!$a){
+            throw new \Exception();
+        }
+        return (new AuthSession())
+            ->setAccountTypeName('App\Controllers\Service\Auth\Sports')
+            ->setIdentity($a['sub'])
+            ->setCreateTime($a['iat'])
+            ->setExpirationTime($a['exp']);
     }
 
     protected function create(string $issuer, string $user, int $iat, int $exp, array $data): array
